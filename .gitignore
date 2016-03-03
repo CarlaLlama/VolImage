@@ -1,0 +1,6 @@
+# Ignore binary files
+*.o
+
+# Ignore images
+MRI_originals/
+brain_mri_raw/
