@@ -1,6 +1,11 @@
 # Ignore binary files
 *.o
+*.raw
+*.dat
 
 # Ignore images
 MRI_originals/
-brain_mri_raw/
+brain_mri_raws/
+
+# Ignore script
+volimage

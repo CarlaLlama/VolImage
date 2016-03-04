@@ -33,6 +33,7 @@ using namespace std;
 	bool VolImage::readImages(string baseName){
 		string filename;
 		filename = baseName + ".dat";
+		cout << filename << endl; //PRINT
 		ifstream ifs(filename.c_str());
 
 		if(!ifs){
@@ -40,6 +41,7 @@ using namespace std;
 			return 0;
 		}
 
+		
 		// Stream header file contents
 		int number_images;
 		string contents;
@@ -49,10 +51,10 @@ using namespace std;
 		int cnt = 1;
 		while(getline(iss, current, ' ')){
 			int curr;
+			cout << current << endl; //PRINT
 			istringstream ss(current);
 			ss >> curr;
 			if(cnt == 1){
-				//is this how you set private variables?
 				width = curr;
 				cnt++;
 			}else if(cnt == 2){
@@ -60,6 +62,7 @@ using namespace std;
 				cnt++;
 			}else if (cnt == 3){
 				number_images = curr;
+				cnt++;
 			}
 		}
 		ifs.close();
@@ -70,17 +73,20 @@ using namespace std;
 		frame = new u_char* [height];
 		for(int i = 0; i < height; i++){
 			// This is a pointer too?
-			*frame[i] = new u_char[width];
+			frame[i] = new u_char[width];
 		}
+		cout << "Done making 2D array" << endl; //PRINT
 
 		// Stream .raw file contents
-		for(int i = 0; i < number_images; i++){
+		// Change to i < number_images
+		for(int i = 0; i < 1; i++){
 			// Make filename
 			string filenum;
 			stringstream ss;
 			ss << i;
 			filenum = ss.str();
 			filename = baseName + filenum + ".raw";
+			cout << "Filename: " + filename << endl; //PRINT
 			// Worry about file path later too
 			ifstream binfile(filename.c_str(), ios::in|ios::binary|ios::ate);
 			// ios::ate flag - get pointer positioned at end of the file;
@@ -91,21 +97,21 @@ using namespace std;
 			}
 
 			//memblock holds whole file
-			u_char * memblock;
+			char * memblock;
 			streampos size;
 			// Stream header file contents
 			if(binfile.is_open()){
-				size = binfile.tellg;
-				memblock = new u_char [size];
+				size = binfile.tellg();
+				memblock = new char [size];
 				binfile.seekg (0, ios::beg);
 				// get position at beginning of file (with pointer thing)
 				// read everything into memblock
 				binfile.read (memblock, size);
+				cout << "Hopefully everything in dynamic memblock" << endl; //PRINT
 				binfile.close();
 			}
 
 			// Now put in array
-			// I hope this works
 			int counter = 0;
 			for(int i = 0; i < height; i++){
 				for(int j = 0; j < width; j++){
@@ -113,7 +119,8 @@ using namespace std;
 					counter++;
 				}
 			}
-
+			cout << "First thing in file: "+ frame[0][0] << endl; //PRINT NOT WORKING
+			
 			// Getting rid of binary chunk
 			delete[] memblock;
 
@@ -131,10 +138,9 @@ using namespace std;
 
 	}
 
-	// number of bytes uses to store image data bytes
-	//and pointers (ignore vector<> container, dims etc)
+	// number of bytes used to store image data bytes
+	// and pointers (ignore vector<> container, dims etc)
 	int VolImage::volImageSize(void){
-		//maybe?
 		int size = height*width;
 		return size;
 	}
