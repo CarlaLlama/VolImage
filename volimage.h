@@ -30,8 +30,10 @@ public:
 	// extract slice sliceId and write to output
 	void extract(int sliceId, std::string output_prefix);
 
-	// number of bytes uses to store image data bytes
-	//and pointers (ignore vector<> container, dims etc)
+	// number of bytes uses to store image data bytes and pointers
 	int volImageSize(void);
+
+	// number of images
+	int volNumberImages(void);
 };
 #endif

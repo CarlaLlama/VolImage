@@ -16,11 +16,13 @@ int main(int argc, char* argv[])
 	int img_no;
 	int bytes_no;
 	string operation_message;
+
 	if(argc < 2){
 		cout << "Incorrect program entry." << endl;
 		cout << "Correct usage: volimage <imageBase> [-d i j output_file_name] [-x i output_file_name] [-g i]" << endl;
 		return 0;
 	}
+
 	// Make volimage Object, read in images
 	VolImage volimg;
 	prefix = string(argv[1]);
@@ -29,18 +31,14 @@ int main(int argc, char* argv[])
 	if(argc == 2){
 		// go ahead and build the internal representation and then exit after
 		// ensuring memory is correctly cleaned up
-		img_no = 1;
-		bytes_no = 3;
-		operation_message = "None";
-	}else if((argc == 4) && (string(argv[2]) == "-g")){
+		operation_message = "Built internal representation, now exiting.";
+	}else if((argc == 5) && (string(argv[2]) == "-g")){
 		int imgi;
 		istringstream is(argv[3]);
 		is >> imgi;
 		outfile = string(argv[4]);
 
-		// volimg.extract(slice, outfile); what here?
-		img_no = 1;
-		bytes_no = 3;
+		volimg.extractRow(imgi, outfile);
 		operation_message = "Extract image along row i across all slices.";
 	}else if((argc == 5) && (string(argv[2]) == "-x")){
 		int slice;
@@ -49,10 +47,7 @@ int main(int argc, char* argv[])
 		outfile = string(argv[4]);
 
 		volimg.extract(slice, outfile);
-
-		img_no = 1;
-		bytes_no = 3;
-		operation_message = "Retrieve slice and write slice to output file";
+		operation_message = "Retrieved slice and wrote slice to output file";
 	}else if((argc == 6) && (string(argv[2]) == "-d")){
 		int imgi;
 		int imgj;
@@ -63,10 +58,7 @@ int main(int argc, char* argv[])
 		outfile = string(argv[5]);
 
 		volimg.diffmap(imgi, imgj, outfile);
-
-		img_no = 1;
-		bytes_no = 3;
-		operation_message = "Compute difference map between slices i and j";
+		operation_message = "Computed difference map between slices " + string(argv[3]) + " and " + string(argv[4]) + " to output file";
 	}else{
 		cout << "Incorrect program entry." << endl;
 		cout << "Correct usage: volimage <imageBase> [-d i j output_file_name] [-x i output_file_name] [-g i]" << endl;
@@ -74,7 +66,9 @@ int main(int argc, char* argv[])
 	}
 
 	// Print number of images and bytes required
-	// And then 
+	img_no = volimg.volNumberImages();
+	bytes_no = volimg.volImageSize();
+
 	ostringstream oss;
 	oss << img_no;
 	cout << "Number of images: " + oss.str() << endl;
@@ -83,7 +77,8 @@ int main(int argc, char* argv[])
 	ss << bytes_no;
 	cout << "Number of bytes required: " + ss.str() << endl;
 
-	cout << "Operation achieved: " + operation_message << endl;
+	cout << "Operation achieved: " << operation_message << endl;
 
 	return 0;
+
 };

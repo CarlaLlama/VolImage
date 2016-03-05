@@ -5,7 +5,7 @@
 
 # Ignore images
 MRI_originals/
-brain_mri_raws/
+MRI/
 
 # Ignore script
 volimage

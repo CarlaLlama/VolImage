@@ -8,6 +8,7 @@
 #include <fstream>
 #include <sstream>
 #include <vector>
+#include <math.h>
 
 using namespace std;
 
@@ -15,33 +16,32 @@ using namespace std;
 		width = 0;
 		height = 0;
 		vector<u_char**> slices;
-
 	}
 
 	VolImage::~VolImage(){
-		// do we put deletes in here?
-		// where do we call deconstructor?
-		for (int i = 0; i < height; ++i) {
-			for (int j = 0; j < width; ++j) {
-    			delete slices[i][j]; // Calls ~VolImage and deallocates *tmp[i][j]
-    		}
+		for(int mem = 0; mem < slices.size(); mem++){
+			for (int i = 0; i < height; i++) {
+			   	delete[] slices[mem][i];
+			}
+			delete [] slices[mem];
 		}
-		slices.clear();
+		cout << "Dynamically allocated memory cleaned." << endl;
   	}
 
 	// populate the object with images in stack
 	bool VolImage::readImages(string baseName){
 		string filename;
-		filename = baseName + ".dat";
+		filename = baseName + "/" + baseName + ".dat";
 		cout << filename << endl; //PRINT
 		ifstream ifs(filename.c_str());
 
 		if(!ifs){
-			cout << "File not found.";
+			cout << "File not found." << endl;
+			cout << "Please ensure files are inside a folder with the same name as the prefix." << endl;
+			cout << "Please ensure header files have the suffix .dat" << endl;
 			return 0;
 		}
 
-		
 		// Stream header file contents
 		int number_images;
 		string contents;
@@ -67,47 +67,46 @@ using namespace std;
 		}
 		ifs.close();
 
-		// Dynamically allocate 2D array
-		// Do this here?
-		u_char **frame;
-		frame = new u_char* [height];
-		for(int i = 0; i < height; i++){
-			// This is a pointer too?
-			frame[i] = new u_char[width];
-		}
-		cout << "Done making 2D array" << endl; //PRINT
-
 		// Stream .raw file contents
-		// Change to i < number_images
-		for(int i = 0; i < 1; i++){
+		// Change to i < number_images !!!
+		for(int i = 0; i < 2; i++){
 			// Make filename
 			string filenum;
 			stringstream ss;
 			ss << i;
 			filenum = ss.str();
-			filename = baseName + filenum + ".raw";
+			filename = baseName + "/" + baseName + filenum + ".raw";
 			cout << "Filename: " + filename << endl; //PRINT
 			// Worry about file path later too
 			ifstream binfile(filename.c_str(), ios::in|ios::binary|ios::ate);
 			// ios::ate flag - get pointer positioned at end of the file;
-			// how tellg gets size. Do we need this?
+			// how tellg gets size
 			if(!binfile){
 				cout << "File " + filename + " not found.";
+				cout << "Please ensure files are inside a folder with the same name as the prefix." << endl;
+				cout << "Please ensure binary files have the suffix .raw" << endl;
 				return 0;
 			}
 
-			//memblock holds whole file
-			char * memblock;
-			streampos size;
+			// Dynamically allocate 2D frame array for slice
+			u_char **frame = new u_char* [height];
+			for(int i = 0; i < height; i++){
+				frame[i] = new u_char[width];
+			}
+			cout << "Done making 2D array for slice" << endl; //PRINT
+
+
 			// Stream header file contents
+			char * blck;
+			streampos size;
 			if(binfile.is_open()){
 				size = binfile.tellg();
-				memblock = new char [size];
-				binfile.seekg (0, ios::beg);
-				// get position at beginning of file (with pointer thing)
-				// read everything into memblock
-				binfile.read (memblock, size);
-				cout << "Hopefully everything in dynamic memblock" << endl; //PRINT
+				blck = new char[size];
+				binfile.seekg(0, ios::beg);
+				// get position at beginning of file
+				// read everything into blck
+				binfile.read(blck, size);
+				cout << "Hopefully everything in dynamic block" << endl; //PRINT
 				binfile.close();
 			}
 
@@ -115,32 +114,107 @@ using namespace std;
 			int counter = 0;
 			for(int i = 0; i < height; i++){
 				for(int j = 0; j < width; j++){
-					frame[i][j] = memblock[counter];
+					frame[i][j] = blck[counter];
 					counter++;
 				}
 			}
-			cout << "First thing in file: "+ frame[0][0] << endl; //PRINT NOT WORKING
-			
-			// Getting rid of binary chunk
-			delete[] memblock;
 
+			// Now put array in vector as a slice
+			slices.push_back(frame);
+
+			stringstream s;
+			s << frame[0][0];
+
+			cout << "First thing in file: "+ s.str() << endl; //PRINT
+
+			s << frame[1][0];
+			
+			cout << "Next thing in file: "+ s.str() << endl; //PRINT
+
+			// Getting rid of binary chunk
+			delete[] blck;
+			cout << "Removed dynamic memblock." << endl;
 		}
 		return 0;
 	}
 
 	// compute difference map and write out
 	void VolImage::diffmap(int sliceI, int sliceJ, string output_prefix){
+		// make header file
+		string header_filename = output_prefix + ".dat";
+		ofstream ofile(header_filename.c_str());
+		string out;
+		ostringstream oss;
+		oss << width;
+		ostringstream os;
+		os << height;
+		out = oss.str() + " " + os.str() + " 1";
+		cout << out << endl;
+		ofile << out;
+		ofile.close();
 
+		// make difference map output file
+		string output_filename = output_prefix + ".raw";
+		// open with binary flag
+		ofstream offile(output_filename.c_str(), ios::out | ios::binary);
+
+		int size = height*width;
+		char output[size];
+		int buff_cnt;
+		for(int r = 0; r < height; r++){
+			for(int c = 0; c < width; c++){
+				output[buff_cnt] = (u_char)(fabs((float)slices[sliceI][r][c] - (float)slices[sliceJ][r][c])/2);
+				buff_cnt++;
+			}
+		}
+		
+		offile.write(output, size);
+		offile.close();
 	}
 
 	// extract slice sliceId and write to output
 	void VolImage::extract(int sliceId, string output_prefix){
+		// make header file
+		string header_filename = output_prefix + ".dat";
+		ofstream ofile(header_filename.c_str());
+		string out;
+		ostringstream oss;
+		oss << width;
+		ostringstream os;
+		os << height;
+		out = oss.str() + " " + os.str() + " 1";
+		cout << out << endl;
+		ofile << out;
+		ofile.close();
 
+		// make output file
+		string output_filename = output_prefix + ".raw";
+		// open with binary flag
+		ofstream offile(output_filename.c_str(), ios::out | ios::binary);
+
+		int size = height*width;
+		char output[size];
+		int buff_cnt;
+		u_char** frame = slices[sliceId];
+		for(int i = 0; i < height; i++){
+			for(int j = 0; j < width; j++){
+				output[buff_cnt] = frame[i][j];
+				buff_cnt++;
+			}
+		}
+		offile.write(output, size);
+		offile.close();
 	}
 
-	// number of bytes used to store image data bytes
-	// and pointers (ignore vector<> container, dims etc)
+	// number of bytes used to store image data bytes and pointers
 	int VolImage::volImageSize(void){
 		int size = height*width;
+		// FIX THIS
 		return size;
+	}
+
+	// number of images
+	int VolImage::volNumberImages(void){
+		int number = slices.size();
+		return number;
 	}
