@@ -8,6 +8,8 @@
 #include <iostream>
 #include <cstdlib>
 #include <vector>
+#include <iostream>
+#include <sstream>
 
 class VolImage
 {

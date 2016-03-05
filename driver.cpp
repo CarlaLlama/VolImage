@@ -3,8 +3,6 @@
 * Carla Wilby 01/03/2016
 */
 #include "volimage.h"
-#include <iostream>
-#include <sstream>
 
 using namespace std;
 

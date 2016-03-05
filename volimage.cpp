@@ -73,7 +73,6 @@ using namespace std;
 			ss << i;
 			filenum = ss.str();
 			filename = baseName + "/" + baseName + filenum + ".raw";
-			cout << "Filename: " + filename << endl; //PRINT
 			ifstream binfile(filename.c_str(), ios::in|ios::binary|ios::ate);
 			// ios::ate flag - get pointer positioned at end of the file;
 			if(!binfile){
@@ -131,9 +130,7 @@ using namespace std;
 		ostringstream os;
 		os << height;
 		out = oss.str() + " " + os.str() + " 1";
-		cout << out << endl;
 		ofile << out;
-		ofile.close();
 
 		// make difference map output file
 		string output_filename = output_prefix + ".raw";
@@ -141,6 +138,8 @@ using namespace std;
 		ofstream offile(output_filename.c_str(), ios::out | ios::binary);
 
 		int size = height*width;
+		ostringstream ods;
+		ods << size;
 		char output[size];
 		int buff_cnt;
 		for(int r = 0; r < height; r++){
@@ -165,9 +164,7 @@ using namespace std;
 		ostringstream os;
 		os << height;
 		out = oss.str() + " " + os.str() + " 1";
-		cout << out << endl;
 		ofile << out;
-		ofile.close();
 
 		// make output file
 		string output_filename = output_prefix + ".raw";
@@ -175,12 +172,13 @@ using namespace std;
 		ofstream offile(output_filename.c_str(), ios::out | ios::binary);
 
 		int size = height*width;
+		ostringstream ods;
+		ods << size;
 		char output[size];
 		int buff_cnt;
-		u_char** frame = slices[sliceId];
 		for(int i = 0; i < height; i++){
 			for(int j = 0; j < width; j++){
-				output[buff_cnt] = frame[i][j];
+				output[buff_cnt] = slices[sliceId][i][j];
 				buff_cnt++;
 			}
 		}
@@ -188,6 +186,7 @@ using namespace std;
 		offile.close();
 	}
 
+	// extract an image across row, across all slices and write to output file
 	void VolImage::extractRow(int imgi, string output_prefix){
 		// make header file
 		string header_filename = output_prefix + ".dat";
@@ -196,23 +195,23 @@ using namespace std;
 		ostringstream oss;
 		oss << width;
 		ostringstream os;
+		//height is now number of images
 		os << slices.size();
 		out = oss.str() + " " + os.str() + " 1";
-		cout << out << endl;
 		ofile << out;
-		ofile.close();
 
 		// make output file
 		string output_filename = output_prefix + ".raw";
 		// open with binary flag
 		ofstream offile(output_filename.c_str(), ios::out | ios::binary);
+		int num = volNumberImages();
+		int size = width*num;
 
-		int size = height*(slices.size());
 		char output[size];
 		int buff_cnt;
-		for(int i = 0; i < slices.size(); i++){
+		for(int i = 0; i < num; i++){
 			for(int j = 0; j < width; j++){
-				output[buff_cnt] = slices[i][imgi][width];
+				output[buff_cnt] = slices[i][imgi][j];
 				buff_cnt++;
 			}
 		}
@@ -223,7 +222,6 @@ using namespace std;
 	// number of bytes used to store image data bytes and pointers
 	int VolImage::volImageSize(void){
 		int size = height*width;
-		// FIX THIS
 		return size;
 	}
 
