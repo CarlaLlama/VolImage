@@ -28,7 +28,7 @@ using namespace std;
 		cout << "Dynamically allocated memory cleaned." << endl;
   	}
 
-	// populate the object with images in stack
+	// Populate the object with images in stack
 	bool VolImage::readImages(string baseName){
 		string filename;
 		filename = baseName + "/" + baseName + ".dat";
@@ -95,8 +95,8 @@ using namespace std;
 				size = binfile.tellg();
 				blck = new char[size];
 				binfile.seekg(0, ios::beg);
-				// get position at beginning of file
-				// read everything into blck
+				// Get position at beginning of file
+				// Read everything into blck
 				binfile.read(blck, size);
 				binfile.close();
 			}
@@ -119,9 +119,9 @@ using namespace std;
 		return 0;
 	}
 
-	// compute difference map and write out
+	// Compute difference map and write out
 	void VolImage::diffmap(int sliceI, int sliceJ, string output_prefix){
-		// make header file
+		// Make header file
 		string header_filename = output_prefix + ".dat";
 		ofstream ofile(header_filename.c_str());
 		string out;
@@ -132,9 +132,9 @@ using namespace std;
 		out = oss.str() + " " + os.str() + " 1";
 		ofile << out;
 
-		// make difference map output file
+		// Make difference map output file
 		string output_filename = output_prefix + ".raw";
-		// open with binary flag
+		// Open with binary flag
 		ofstream offile(output_filename.c_str(), ios::out | ios::binary);
 
 		int size = height*width;
@@ -153,9 +153,9 @@ using namespace std;
 		offile.close();
 	}
 
-	// extract slice sliceId and write to output
+	// Extract slice sliceId and write to output
 	void VolImage::extract(int sliceId, string output_prefix){
-		// make header file
+		// Make header file
 		string header_filename = output_prefix + ".dat";
 		ofstream ofile(header_filename.c_str());
 		string out;
@@ -166,9 +166,9 @@ using namespace std;
 		out = oss.str() + " " + os.str() + " 1";
 		ofile << out;
 
-		// make output file
+		// Make output file
 		string output_filename = output_prefix + ".raw";
-		// open with binary flag
+		// Open with binary flag
 		ofstream offile(output_filename.c_str(), ios::out | ios::binary);
 
 		int size = height*width;
@@ -186,23 +186,23 @@ using namespace std;
 		offile.close();
 	}
 
-	// extract an image across row, across all slices and write to output file
+	// Extract an image across row, across all slices and write to output file
 	void VolImage::extractRow(int imgi, string output_prefix){
-		// make header file
+		// Make header file
 		string header_filename = output_prefix + ".dat";
 		ofstream ofile(header_filename.c_str());
 		string out;
 		ostringstream oss;
 		oss << width;
 		ostringstream os;
-		//height is now number of images
+		// Height is now number of images
 		os << slices.size();
 		out = oss.str() + " " + os.str() + " 1";
 		ofile << out;
 
-		// make output file
+		// Make output file
 		string output_filename = output_prefix + ".raw";
-		// open with binary flag
+		// Open with binary flag
 		ofstream offile(output_filename.c_str(), ios::out | ios::binary);
 		int num = volNumberImages();
 		int size = width*num;
@@ -219,13 +219,13 @@ using namespace std;
 		offile.close();
 	}
 
-	// number of bytes used to store image data bytes and pointers
+	// Number of bytes used to store image data bytes and pointers
 	int VolImage::volImageSize(void){
-		int size = height*width;
+		int size = height*width*slices.size();
 		return size;
 	}
 
-	// number of images
+	// Number of images
 	int VolImage::volNumberImages(void){
 		int number = slices.size();
 		return number;

@@ -27,7 +27,7 @@ int main(int argc, char* argv[])
 	volimg.readImages(prefix);
 
 	if(argc == 2){
-		// build the internal representation and then exit after memory is correctly cleaned up
+		// Build the internal representation and then exit after memory is correctly cleaned up
 		operation_message = "Built internal representation, now exiting.";
 	}else if((argc == 5) && (string(argv[2]) == "-g")){
 		int imgi;
@@ -35,16 +35,30 @@ int main(int argc, char* argv[])
 		is >> imgi;
 		outfile = string(argv[4]);
 
+		// int checking
+		if(!imgi){
+			cout << "Incorrect program entry." << endl;
+			cout << "Variable i must be an integer." << endl;
+			return 0;
+		}
+
 		volimg.extractRow(imgi, outfile);
-		operation_message = "Extract image along row " + string(argv[3]) + " across all slices.";
+		operation_message = "Extract image along row " + string(argv[3]) + " across all slices. Wrote to: " + outfile + ".raw";
 	}else if((argc == 5) && (string(argv[2]) == "-x")){
 		int slice;
 		istringstream is(argv[3]);
 		is >> slice;
 		outfile = string(argv[4]);
 
+		// int checking
+		if(!slice){
+			cout << "Incorrect program entry." << endl;
+			cout << "Variable i must be an integer." << endl;
+			return 0;
+		}
+
 		volimg.extract(slice, outfile);
-		operation_message = "Retrieved slice and wrote slice to output file";
+		operation_message = "Retrieved slice " + string(argv[3]) + " and wrote slice to: " + outfile + ".raw";
 	}else if((argc == 6) && (string(argv[2]) == "-d")){
 		int imgi;
 		int imgj;
@@ -54,8 +68,15 @@ int main(int argc, char* argv[])
 		iss >> imgj;
 		outfile = string(argv[5]);
 
+		// int checking
+		if(!imgi || !imgj){
+			cout << "Incorrect program entry." << endl;
+			cout << "Variables i and j must be integers." << endl;
+			return 0;
+		}
+
 		volimg.diffmap(imgi, imgj, outfile);
-		operation_message = "Computed difference map between slices " + string(argv[3]) + " and " + string(argv[4]) + " to output file";
+		operation_message = "Computed difference map between slices " + string(argv[3]) + " and " + string(argv[4]) + " to output file: " + outfile + ".raw";
 	}else{
 		cout << "Incorrect program entry." << endl;
 		cout << "Correct usage: volimage <imageBase> [-d i j output_file_name] [-x i output_file_name] [-g i output_file_name]" << endl;

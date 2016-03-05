@@ -23,22 +23,22 @@ public:
 	VolImage();
 	~VolImage();
 
-	// populate the object with images in stack
+	// Populate the object with images in stack
 	bool readImages(std::string baseName);
 
-	// compute difference map and write to output file
+	// Compute difference map and write to output file
 	void diffmap(int sliceI, int sliceJ, std::string output_prefix);
 
-	// extract slice sliceId and write to output file
+	// Extract slice sliceId and write to output file
 	void extract(int sliceId, std::string output_prefix);
 
-	// extract an image across row, across all slices and write to output file
+	// Extract an image across row, across all slices and write to output file
 	void extractRow(int imgi, std::string output_prefix);
 
-	// number of bytes uses to store image data bytes and pointers
+	// Number of bytes uses to store image data bytes and pointers
 	int volImageSize(void);
 
-	// number of images in stack
+	// Number of images in stack
 	int volNumberImages(void);
 };
 #endif
