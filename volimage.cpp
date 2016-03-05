@@ -32,7 +32,6 @@ using namespace std;
 	bool VolImage::readImages(string baseName){
 		string filename;
 		filename = baseName + "/" + baseName + ".dat";
-		cout << filename << endl; //PRINT
 		ifstream ifs(filename.c_str());
 
 		if(!ifs){
@@ -51,7 +50,6 @@ using namespace std;
 		int cnt = 1;
 		while(getline(iss, current, ' ')){
 			int curr;
-			cout << current << endl; //PRINT
 			istringstream ss(current);
 			ss >> curr;
 			if(cnt == 1){
@@ -68,8 +66,7 @@ using namespace std;
 		ifs.close();
 
 		// Stream .raw file contents
-		// Change to i < number_images !!!
-		for(int i = 0; i < 2; i++){
+		for(int i = 0; i < number_images; i++){
 			// Make filename
 			string filenum;
 			stringstream ss;
@@ -77,10 +74,8 @@ using namespace std;
 			filenum = ss.str();
 			filename = baseName + "/" + baseName + filenum + ".raw";
 			cout << "Filename: " + filename << endl; //PRINT
-			// Worry about file path later too
 			ifstream binfile(filename.c_str(), ios::in|ios::binary|ios::ate);
 			// ios::ate flag - get pointer positioned at end of the file;
-			// how tellg gets size
 			if(!binfile){
 				cout << "File " + filename + " not found.";
 				cout << "Please ensure files are inside a folder with the same name as the prefix." << endl;
@@ -93,8 +88,6 @@ using namespace std;
 			for(int i = 0; i < height; i++){
 				frame[i] = new u_char[width];
 			}
-			cout << "Done making 2D array for slice" << endl; //PRINT
-
 
 			// Stream header file contents
 			char * blck;
@@ -106,7 +99,6 @@ using namespace std;
 				// get position at beginning of file
 				// read everything into blck
 				binfile.read(blck, size);
-				cout << "Hopefully everything in dynamic block" << endl; //PRINT
 				binfile.close();
 			}
 
@@ -122,18 +114,8 @@ using namespace std;
 			// Now put array in vector as a slice
 			slices.push_back(frame);
 
-			stringstream s;
-			s << frame[0][0];
-
-			cout << "First thing in file: "+ s.str() << endl; //PRINT
-
-			s << frame[1][0];
-			
-			cout << "Next thing in file: "+ s.str() << endl; //PRINT
-
 			// Getting rid of binary chunk
 			delete[] blck;
-			cout << "Removed dynamic memblock." << endl;
 		}
 		return 0;
 	}
@@ -199,6 +181,38 @@ using namespace std;
 		for(int i = 0; i < height; i++){
 			for(int j = 0; j < width; j++){
 				output[buff_cnt] = frame[i][j];
+				buff_cnt++;
+			}
+		}
+		offile.write(output, size);
+		offile.close();
+	}
+
+	void VolImage::extractRow(int imgi, string output_prefix){
+		// make header file
+		string header_filename = output_prefix + ".dat";
+		ofstream ofile(header_filename.c_str());
+		string out;
+		ostringstream oss;
+		oss << width;
+		ostringstream os;
+		os << slices.size();
+		out = oss.str() + " " + os.str() + " 1";
+		cout << out << endl;
+		ofile << out;
+		ofile.close();
+
+		// make output file
+		string output_filename = output_prefix + ".raw";
+		// open with binary flag
+		ofstream offile(output_filename.c_str(), ios::out | ios::binary);
+
+		int size = height*(slices.size());
+		char output[size];
+		int buff_cnt;
+		for(int i = 0; i < slices.size(); i++){
+			for(int j = 0; j < width; j++){
+				output[buff_cnt] = slices[i][imgi][width];
 				buff_cnt++;
 			}
 		}

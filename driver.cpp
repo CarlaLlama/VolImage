@@ -19,7 +19,7 @@ int main(int argc, char* argv[])
 
 	if(argc < 2){
 		cout << "Incorrect program entry." << endl;
-		cout << "Correct usage: volimage <imageBase> [-d i j output_file_name] [-x i output_file_name] [-g i]" << endl;
+		cout << "Correct usage: volimage <imageBase> [-d i j output_file_name] [-x i output_file_name] [-g i output_file_name]" << endl;
 		return 0;
 	}
 
@@ -29,8 +29,7 @@ int main(int argc, char* argv[])
 	volimg.readImages(prefix);
 
 	if(argc == 2){
-		// go ahead and build the internal representation and then exit after
-		// ensuring memory is correctly cleaned up
+		// build the internal representation and then exit after memory is correctly cleaned up
 		operation_message = "Built internal representation, now exiting.";
 	}else if((argc == 5) && (string(argv[2]) == "-g")){
 		int imgi;
@@ -39,7 +38,7 @@ int main(int argc, char* argv[])
 		outfile = string(argv[4]);
 
 		volimg.extractRow(imgi, outfile);
-		operation_message = "Extract image along row i across all slices.";
+		operation_message = "Extract image along row " + string(argv[3]) + " across all slices.";
 	}else if((argc == 5) && (string(argv[2]) == "-x")){
 		int slice;
 		istringstream is(argv[3]);
@@ -61,7 +60,7 @@ int main(int argc, char* argv[])
 		operation_message = "Computed difference map between slices " + string(argv[3]) + " and " + string(argv[4]) + " to output file";
 	}else{
 		cout << "Incorrect program entry." << endl;
-		cout << "Correct usage: volimage <imageBase> [-d i j output_file_name] [-x i output_file_name] [-g i]" << endl;
+		cout << "Correct usage: volimage <imageBase> [-d i j output_file_name] [-x i output_file_name] [-g i output_file_name]" << endl;
 		return 0;
 	}
 
