@@ -22,15 +22,18 @@ COMMAND LINE ARGUMENTS
 
 volimage : name of executable
 <imageBase> : name of images prefix i.e. MRI
+
 [-d i j output_file_name] :
 	-d : differential mapping flag
 	i : first image index
 	j : second image index
 	output_file_name : name of file to print result to
+
 [-x i output_file_name] :
 	-x : extract image flag
 	i : index of image to extract
 	output_file_name : name of file to print result to
+
 [-g i output_file_name] :
 	-g : extract image along row flag
 	i : row number to extract from all files
@@ -42,7 +45,7 @@ HELP
 There are a number of things to ensure or this program will not work:
 
 1. Only one of the operations (flags) can be used in each run!
-2. Ensure the binary and header files of the image to be processed are inside a directory within the program directory.
+2. Ensure the binary and header files of the image to be processed are INSIDE A DIRECTORY within the program directory.
 3. The name of this directory MUST be the same as the name of the prefix of the files: eg MRI
 4. All image header files MUST have the suffix .dat
 5. All image binary files MUST have the suffix .raw
